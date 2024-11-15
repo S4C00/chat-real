@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+        .message {
+            margin-bottom: 5px;
+        }
+        .message span {
+            font-weight: bold;
+            color: #007bff;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <!-- Agrega el SDK de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Chat en Tiempo Real</h1>
+    <div id="messages"></div>
+    <input type="text" id="username" placeholder="Nombre de usuario">
+    <input type="text" id="message" placeholder="Escribe tu mensaje">
+    <button onclick="sendMessage()">Enviar</button>
+</div>
+
+<script>
+    import { initializeApp } from "firebase/app";
+    import { getAnalytics } from "firebase/analytics";
+
+    // Agrega aquí tu configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyA3IqVCXSy_ux7nXiYrVd7HOo4t7v5yRyg",
+        authDomain: "chat-f6c7a.firebaseapp.com",
+        databaseURL: "https://chat-f6c7a-default-rtdb.firebaseio.com",
+        projectId: "chat-f6c7a",
+        storageBucket: "chat-f6c7a.firebasestorage.app",
+        messagingSenderId: "191969812042",
+        appId: "1:191969812042:web:465618929350e6042310b3",
+        measurementId: "G-RPXWJ2MM3D"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = firebase.database();
+
+    // Referencia a la base de datos de mensajes
+    const messagesRef = db.ref("messages");
+
+    // Escuchar nuevos mensajes en tiempo real
+    messagesRef.on("child_added", (snapshot) => {
+        const messageData = snapshot.val();
+        displayMessage(messageData.username, messageData.message);
+    });
+
+    // Función para mostrar un mensaje en el chat
+    function displayMessage(username, message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message");
+        messageDiv.innerHTML = `<span>${username}:</span> ${message}`;
+        document.getElementById("messages").appendChild(messageDiv);
+        document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+
+    // Función para enviar un mensaje
+    function sendMessage() {
+        const username = document.getElementById("username").value;
+        const message = document.getElementById("message").value;
+        if (username && message) {
+            // Agregar mensaje a la base de datos
+            messagesRef.push({ username: username, message: message });
+            document.getElementById("message").value = ""; // Limpia el campo de mensaje
+        }
+    }
+</script>
+
+</body>
+</html>
